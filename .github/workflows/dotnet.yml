@@ -1,0 +1,53 @@
+name: .NET
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    permissions:
+      contents: write
+      packages: write
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Setup NuGet
+        run: dotnet nuget add source --username USERNAME --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/Texnokaktus-ProgOlymp/index.json"
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore
+
+      - name: Version
+        id: get-version
+        run: echo "version=$(git show --no-patch --format=%ad --date=format:'%Y.%-m.%-d' HEAD).${{ github.run_number }}" >> $GITHUB_OUTPUT
+        env:
+          TZ: Europe/Moscow
+
+      - name: Pack
+        run: dotnet pack --configuration Release /p:Version=${{ steps.get-version.outputs.version }}
+
+      - name: Push
+        run: dotnet nuget push "Texnokaktus.ProgOlymp.Platform/bin/Release/Texnokaktus.ProgOlymp.Identity.*.nupkg" --api-key ${{ secrets.GITHUB_TOKEN }} --source "github"
+
+      - name: Push tag
+        run: |
+          tag=${{ steps.get-version.outputs.version }}
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          git tag "v${tag}"
+          git push origin "v${tag}"

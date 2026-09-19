@@ -42,7 +42,7 @@ jobs:
         run: dotnet pack --configuration Release /p:Version=${{ steps.get-version.outputs.version }}
 
       - name: Push
-        run: dotnet nuget push "Texnokaktus.ProgOlymp.Platform/bin/Release/Texnokaktus.ProgOlymp.Identity.*.nupkg" --api-key ${{ secrets.GITHUB_TOKEN }} --source "github"
+        run: dotnet nuget push "Texnokaktus.ProgOlymp.Identity/bin/Release/Texnokaktus.ProgOlymp.Identity.*.nupkg" --api-key ${{ secrets.GITHUB_TOKEN }} --source "github"
 
       - name: Push tag
         run: |

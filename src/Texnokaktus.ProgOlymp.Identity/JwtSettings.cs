@@ -4,5 +4,5 @@ internal class JwtSettings
 {
     public string? ClaimsIssuer { get; init; }
     public string? Audience { get; init; }
-    public string? IssuerSigningKey { get; init; }
+    public string PublicKeyPath { get; init; } = "keys/jwt-public.pem";
 }

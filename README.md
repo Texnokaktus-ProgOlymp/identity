@@ -75,7 +75,9 @@ openssl pkey -in jwt-private.pem -pubout -out jwt-public.pem
 ## Разработка
 
 - `src/` — библиотека.
-- `tests/` — интеграционные тесты NUnit через Microsoft.Testing.Platform и TestHost.
+- `tests/Texnokaktus.ProgOlymp.Identity.IntegrationTests/` — интеграционные тесты
+  NUnit через Microsoft.Testing.Platform; тестовый pipeline задан в `Tools/Startup.cs`
+  и запускается через `WebApplicationFactory<Startup>` в той же сборке.
 - `Directory.Build.props` — общие параметры сборки; `tests/Directory.Build.props` — тестовая инфраструктура.
 - `Directory.Packages.props` — централизованные версии NuGet-пакетов (CPM).
 - `global.json` — выбор MTP для `dotnet test` в .NET SDK 10 и новее.
@@ -88,3 +90,10 @@ dotnet pack --configuration Release
 ```
 
 Тесты создают временные ключи в каталоге выходной сборки и удаляют их после запуска.
+`CustomWebApplicationFactory` настраивает окружение `Testing` и конфигурацию
+конкретного хоста. `SetupGlobal` запускает общую фабрику один раз на набор;
+`SetupBase` создаёт клиентов и временные файлы для каждого теста и очищает их
+в `TearDown`. Сценарии изменения настроек запускают отдельные фабрики,
+также принадлежащие жизненному циклу теста. Фабрика, генерация JWT, работа
+с временными файлами ключей и HTTP-помощники находятся в `Tools/`.
+HTTP-запросы выполняются через внутрипроцессный TestServer без сетевого порта.
